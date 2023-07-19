@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace指定dao层对应的接口 -->
+<mapper namespace="com.fireExtinguisher.intelligence.yd.dao.DjPartyMeetingsLessonMapper">
+
+  <resultMap id="BaseResultMap" type="com.fireExtinguisher.intelligence.yd.entity.DjPartyMeetingsLesson">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="association_id" jdbcType="BIGINT" property="associationId" />
+    <result column="party_branch_id" jdbcType="BIGINT" property="partyBranchId" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="type" jdbcType="TINYINT" property="type" />
+    <result column="meeting_time" jdbcType="TIMESTAMP" property="meetingTime" />
+    <result column="supporter" jdbcType="VARCHAR" property="supporter" />
+    <result column="content" jdbcType="VARCHAR" property="content" />
+    <result column="remarks" jdbcType="VARCHAR" property="remarks" />
+    <result column="create_by" jdbcType="VARCHAR" property="createBy" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_by" jdbcType="VARCHAR" property="updateBy" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="enabled" jdbcType="TINYINT" property="enabled" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, association_id,party_branch_id, title,type,meeting_time,supporter,content,  remarks,
+    create_by, create_time, update_by, update_time,enabled
+  </sql>
+
+  <select id="findByAll" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from dj_party_meetings_lesson
+    <where>
+      <if test="id != null">
+        and id=#{id,jdbcType=BIGINT}
+      </if>
+      <if test="associationId != null">
+        and association_id=#{associationId,jdbcType=BIGINT}
+      </if>
+      <if test="partyBranchId != null">
+        and party_branch_id=#{partyBranchId,jdbcType=BIGINT}
+      </if>
+      <if test="title != null">
+        and title=#{title,jdbcType=VARCHAR}
+      </if>
+      <if test="type != null">
+        and type=#{type,jdbcType=TINYINT}
+      </if>
+      <if test="meetingTime != null">
+        and meeting_time=#{meetingTime,jdbcType=TIMESTAMP}
+      </if>
+      <if test="supporter != null">
+        and supporter=#{supporter,jdbcType=VARCHAR}
+      </if>
+      <if test="createBy != null">
+        and create_by=#{createBy,jdbcType=VARCHAR}
+      </if>
+      <if test="createTime != null">
+        and create_time=#{createTime,jdbcType=TIMESTAMP}
+      </if>
+      <if test="updateBy != null">
+        and update_by=#{updateBy,jdbcType=VARCHAR}
+      </if>
+      <if test="updateTime != null">
+        and update_time=#{updateTime,jdbcType=TIMESTAMP}
+      </if>
+      <if test="enabled != null">
+        and enabled=#{enabled,jdbcType=TINYINT}
+      </if>
+    </where>
+  </select>
+
+  <delete id="deleteDjPartyMeetingsLessonById">
+    UPDATE dj_party_meetings_lesson SET enabled=0 where id=#{id,jdbcType=BIGINT}
+  </delete>
+  <select id="getById" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from dj_party_meetings_lesson
+    where id=#{id,jdbcType=BIGINT}
+  </select>
+
+  <insert id="add" useGeneratedKeys="true" keyProperty="id">
+    insert into dj_party_meetings_lesson(
+      association_id,
+      party_branch_id,
+      title,
+      type,
+      meeting_time,
+      supporter,
+      content,
+      remarks,
+      create_by,
+      create_time,
+      update_by,
+      update_time
+    )
+    values(
+      #{associationId,jdbcType=BIGINT},
+      #{partyBranchId,jdbcType=BIGINT},
+      #{title,jdbcType=VARCHAR},
+      #{type,jdbcType=TINYINT},
+      #{meetingTime,jdbcType=TIMESTAMP},
+      #{supporter,jdbcType=VARCHAR},
+      #{content,jdbcType=VARCHAR},
+      #{remarks, jdbcType=VARCHAR},
+      #{createBy,jdbcType=VARCHAR},
+      #{createTime,jdbcType=TIMESTAMP},
+      #{updateBy,jdbcType=VARCHAR},
+      #{updateTime,jdbcType=TIMESTAMP}
+          )
+  </insert>
+
+  <update id="updateById" parameterType="Map">
+    update dj_party_meetings_lesson
+    <set>
+      <if test="title != null">
+        title=#{title,jdbcType=VARCHAR},
+      </if>
+      <if test="content != null">
+        content=#{content,jdbcType=VARCHAR},
+      </if>
+      <if test="remarks != null">
+        remarks=#{remarks,jdbcType=VARCHAR},
+      </if>
+      <if test="updateBy != null">
+        update_by=#{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null">
+        update_time=#{updateTime,jdbcType=TIMESTAMP}
+      </if>
+    </set>
+    where id= #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

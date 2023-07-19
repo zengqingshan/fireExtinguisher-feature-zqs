@@ -1,0 +1,19 @@
+spring:
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+    application:
+      name: SpringBootFireExtinguisher
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/fireExtinguisher
+    username: root
+    password: root
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+server:
+  port: 8080
+logging:
+  config: classpath:logback-spring.xml
+  file:
+    path: log/
