@@ -4,9 +4,16 @@ import com.fireExtinguisher.intelligence.yd.entity.DjPartyHistoryEducationInfo;
 import com.fireExtinguisher.intelligence.yd.param.DjPartyHistoryEducationInfoQuery;
 import com.fireExtinguisher.intelligence.yd.service.impl.DjPartyHistoryEducationInfoServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * @author zqs
@@ -16,7 +23,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/dj/partyHistoryEducation")
 public class DjPartyHistoryEducationController {
-
     @Autowired
     private DjPartyHistoryEducationInfoServiceImpl djPartyHistoryEducationService;
 
@@ -73,5 +79,43 @@ public class DjPartyHistoryEducationController {
     public void deleteById(@RequestBody DjPartyHistoryEducationInfo djPartyHistoryEducationInfo)
     {
          djPartyHistoryEducationService.deleteById(djPartyHistoryEducationInfo.getId());
+    }
+
+    /**
+     * 图片上传接口
+     */
+    @RequestMapping(value = "/info/uploadFile",method = {RequestMethod.POST})
+    public String uploadFile(@RequestParam("file") MultipartFile file,
+                             @RequestParam("associationId") Long associationId,
+                             @RequestParam("title") String title
+                             ) throws IOException {
+        try{
+            if(file ==null || file.isEmpty()){
+                return "文件为空";
+            }
+            System.out.println(associationId);
+            System.out.println(title);
+            return djPartyHistoryEducationService.uploadFile(file,associationId,title);
+
+        }catch (Exception e){
+        return e.getMessage();
+        }
+    }
+
+    /**
+     * 图片查看接口
+     */
+    @RequestMapping(value = "/info/downloadFile",method = {RequestMethod.POST})
+    public String uploadFile(HttpServletRequest request,
+                             HttpServletResponse response,
+                             @RequestParam("fileName") String fileName
+    ) throws IOException {
+        try{
+
+
+        }catch (Exception e){
+            return e.getMessage();
+        }
+        return null;
     }
 }
