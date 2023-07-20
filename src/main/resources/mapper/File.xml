@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace指定dao层对应的接口 -->
+<mapper namespace="com.fireExtinguisher.intelligence.yd.dao.DjPartyFileInfoMapper">
+    <resultMap id="BaseResultMap" type="com.fireExtinguisher.intelligence.yd.entity.DjPartyFileInfo">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="file_type" jdbcType="TINYINT" property="fileType" />
+        <result column="project_modle" jdbcType="TINYINT" property="projectModle" />
+        <result column="association_id" jdbcType="BIGINT" property="associationId" />
+        <result column="file_url" jdbcType="VARCHAR" property="fileUrl" />
+        <result column="title" jdbcType="VARCHAR" property="title" />
+        <result column="remarks" jdbcType="VARCHAR" property="remarks" />
+        <result column="create_by" jdbcType="VARCHAR" property="createBy" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_by" jdbcType="VARCHAR" property="updateBy" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+        <result column="enabled" jdbcType="TINYINT" property="enabled" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, file_type,project_modle,association_id,file_url, title,
+        remarks, create_by, create_time, update_by, update_time,enabled
+    </sql>
+    <insert id="add" useGeneratedKeys="true" keyProperty="id">
+        insert into t_file(
+            file_type,
+            project_modle,
+            association_id,
+            file_url,
+            title,
+            remarks,
+            create_by,
+            create_time,
+            update_by,
+            update_time
+        )
+        values(
+                  #{fileType,jdbcType=TINYINT},
+                  #{projectModle,jdbcType=TINYINT},
+                  #{associationId,jdbcType=BIGINT},
+                  #{fileUrl,jdbcType=VARCHAR},
+                  #{title,jdbcType=VARCHAR},
+                  #{remarks, jdbcType=VARCHAR},
+                  #{createBy,jdbcType=VARCHAR},
+                  #{createTime,jdbcType=TIMESTAMP},
+                  #{updateBy,jdbcType=VARCHAR},
+                  #{updateTime,jdbcType=TIMESTAMP}
+              )
+    </insert>
+
+    <select id="findByAssociationId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_file
+        <where>
+            <if test="associationId != null">
+                and association_id=#{associationId,jdbcType=BIGINT}
+            </if>
+        </where>
+    </select>
+
+    <delete id="deleteFileInfoById">
+        UPDATE t_file SET enabled=0 where id=#{id,jdbcType=BIGINT}
+    </delete>
+</mapper>

@@ -1,14 +1,18 @@
 package com.fireExtinguisher.intelligence.yd.service.impl;
 
+import com.fireExtinguisher.intelligence.yd.dao.DjPartyFileInfoMapper;
 import com.fireExtinguisher.intelligence.yd.dao.DjPartyHistoryEducationInfoMapper;
+import com.fireExtinguisher.intelligence.yd.entity.DjPartyFileInfo;
 import com.fireExtinguisher.intelligence.yd.entity.DjPartyHistoryEducationInfo;
 import com.fireExtinguisher.intelligence.yd.param.DjPartyHistoryEducationInfoQuery;
 import com.fireExtinguisher.intelligence.yd.service.DjPartyHistoryEducationInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ResourceUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -27,6 +31,8 @@ public class DjPartyHistoryEducationInfoServiceImpl implements DjPartyHistoryEdu
 
     @Autowired
     private DjPartyHistoryEducationInfoMapper djPartyHistoryEducationInfoMapper;
+    @Autowired
+    private DjPartyFileInfoMapper djPartyFileInfoMapper;
 
     @Override
     public List<DjPartyHistoryEducationInfo> selectDjPartyHistoryEducationInfoList(DjPartyHistoryEducationInfoQuery query)
@@ -55,9 +61,8 @@ public class DjPartyHistoryEducationInfoServiceImpl implements DjPartyHistoryEdu
     }
 
     @Override
-    public String uploadFile(MultipartFile file,Long associationId,String title) {
-        try{
-        SimpleDateFormat simpleDateFormat=new SimpleDateFormat("yyyy-MM-dd");
+    public String uploadFile(MultipartFile file,Long associationId,String title,String createBy) {
+        SimpleDateFormat simpleDateFormat=new SimpleDateFormat("yyyyMMdd");
         SimpleDateFormat simpleDateFormat2=new SimpleDateFormat("yyyyMMdd-HHmmss");
         Date date=new Date();
         String fileFolder=simpleDateFormat.format(date);
@@ -72,20 +77,83 @@ public class DjPartyHistoryEducationInfoServiceImpl implements DjPartyHistoryEdu
         //获取文件名
         String fileName = file.getOriginalFilename();
         //获取文件后缀名。也可以在这里添加判断语句，规定特定格式的图片才能上传，否则拒绝保存。
-        String indexSuffixName = fileName.substring(0,fileName.indexOf("."));
-        String lastSuffixName = fileName.substring(fileName.lastIndexOf("."));
+        //String indexSuffixName = fileName.substring(0,fileName.indexOf("."));
+        //String lastSuffixName = fileName.substring(fileName.lastIndexOf("."));
         //为了避免发生图片替换，这里使用了文件名重新生成
-        fileName=indexSuffixName+"-"+simpleDateFormat2.format(date)+lastSuffixName;
+        //fileName=indexSuffixName+"-"+simpleDateFormat2.format(date)+lastSuffixName;
+        fileName= simpleDateFormat2.format(date)+"-"+fileName;
         String filePath=fileFolderUrl+"/"+fileName;
-        String fileUrl=UPLOAD_FOLDER+fileFolder+"/"+fileName;
+        //String fileUrl=UPLOAD_FOLDER+fileFolder+"/"+fileName;
         System.out.println(filePath);
-        System.out.println(fileUrl);
-        file.transferTo(new File(filePath));
+        System.out.println(fileName);
         //将视频相关信息保存到数据库
-        return fileUrl;
-        }catch (Exception e){
-            return e.getMessage();
+         DjPartyFileInfo djPartyFileInfo=new DjPartyFileInfo();
+         djPartyFileInfo.setAssociationId(associationId);
+         djPartyFileInfo.setTitle(title);
+         djPartyFileInfo.setFileType(2);//文件类型为2 视频
+         djPartyFileInfo.setProjectModle(1);//项目模块为 1 党建
+         djPartyFileInfo.setFileUrl(fileName);
+         djPartyFileInfo.setCreateBy(createBy);
+         djPartyFileInfo.setCreateTime(new Date());
+         djPartyFileInfo.setUpdateBy(createBy);
+         djPartyFileInfo.setUpdateTime(new Date());
+         djPartyFileInfoMapper.add(djPartyFileInfo);
+         //上传视频到服务
+            new Thread(new Runnable() {
+                public void run() {
+                    try {
+                        file.transferTo(new File(filePath));
+                    }catch (Exception e){
+
+                    }
+                }}).start();
+        return fileName;
+
+    }
+
+    @Override
+    public String downloadFile(HttpServletResponse response, String fileName) {
+        response.setHeader("content-type", "application/octet-stream");
+        response.setContentType("application/octet-stream");
+        try {
+            response.setHeader("Content-Disposition", "attachment;filename=" + java.net.URLEncoder.encode(fileName, "UTF-8"));
+        } catch (UnsupportedEncodingException e2) {
+            e2.printStackTrace();
         }
+        byte[] buff = new byte[1024];
+        BufferedInputStream bis = null;
+        OutputStream os = null;
+        try {
+            String dateFolder=fileName.substring(0,fileName.indexOf("-"));//日期文件夹
+            String fileUrl=PROJECT_PATH+UPLOAD_FOLDER+dateFolder+"/"+fileName;
+            os = response.getOutputStream();
+            bis = new BufferedInputStream(new FileInputStream(new File(fileUrl)));
+            int i = bis.read(buff);
+            while (i != -1) {
+                os.write(buff, 0, buff.length);
+                os.flush();
+                i = bis.read(buff);
+            }
+        } catch (FileNotFoundException e1) {
+            //e1.getMessage()+"系统找不到指定的文件";
+            return "系统找不到指定的文件";
+        }catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (bis != null) {
+                try {
+                    bis.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return "success";
+    }
+
+    @Override
+    public List<DjPartyFileInfo> searchFileList(Long associationId) {
+        return djPartyFileInfoMapper.findByAssociationId(associationId);
     }
 
 

@@ -1,5 +1,6 @@
 package com.fireExtinguisher.intelligence.yd.controller;
 
+import com.fireExtinguisher.intelligence.yd.entity.DjPartyFileInfo;
 import com.fireExtinguisher.intelligence.yd.entity.DjPartyHistoryEducationInfo;
 import com.fireExtinguisher.intelligence.yd.param.DjPartyHistoryEducationInfoQuery;
 import com.fireExtinguisher.intelligence.yd.service.impl.DjPartyHistoryEducationInfoServiceImpl;
@@ -10,8 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.List;
 import java.util.UUID;
 
@@ -87,7 +87,8 @@ public class DjPartyHistoryEducationController {
     @RequestMapping(value = "/info/uploadFile",method = {RequestMethod.POST})
     public String uploadFile(@RequestParam("file") MultipartFile file,
                              @RequestParam("associationId") Long associationId,
-                             @RequestParam("title") String title
+                             @RequestParam("title") String title,
+                             @RequestParam("createBy") String createBy
                              ) throws IOException {
         try{
             if(file ==null || file.isEmpty()){
@@ -95,7 +96,7 @@ public class DjPartyHistoryEducationController {
             }
             System.out.println(associationId);
             System.out.println(title);
-            return djPartyHistoryEducationService.uploadFile(file,associationId,title);
+            return djPartyHistoryEducationService.uploadFile(file,associationId,title,createBy);
 
         }catch (Exception e){
         return e.getMessage();
@@ -106,16 +107,18 @@ public class DjPartyHistoryEducationController {
      * 图片查看接口
      */
     @RequestMapping(value = "/info/downloadFile",method = {RequestMethod.POST})
-    public String uploadFile(HttpServletRequest request,
-                             HttpServletResponse response,
-                             @RequestParam("fileName") String fileName
+    public String downloadFile(HttpServletResponse response,
+                             @RequestParam("fileUrl") String fileUrl
     ) throws IOException {
-        try{
-
-
-        }catch (Exception e){
-            return e.getMessage();
-        }
-        return null;
+        return djPartyHistoryEducationService.downloadFile(response,fileUrl);
     }
+
+    /**
+     * 图片列表查询接口
+     */
+    @RequestMapping(value = "/info/searchFileList",method = {RequestMethod.POST})
+    public List<DjPartyFileInfo> searchFileList(@RequestParam("associationId") Long associationId) {
+        return djPartyHistoryEducationService.searchFileList(associationId);
+    }
+
 }
